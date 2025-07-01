@@ -27,8 +27,8 @@ public class UserEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "lock", nullable = false)
-    private Boolean lock; // 계정 잠금 여부
+    @Column(name = "is_lock", nullable = false)
+    private Boolean isLock; // 계정 잠금 여부
 
     @Column(name = "social", nullable = false)
     private Boolean social; // 자체/소셜 계정 여부
