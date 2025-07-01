@@ -4,6 +4,7 @@ import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,6 +12,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.file.AccessDeniedException;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -56,5 +59,24 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
+    // 자체 로그인 회원 정보 수정
+    @Transactional
+    public Long updateUser(UserRequestDTO dto) throws AccessDeniedException {
+
+        // 본인만 수정 가능 검증
+        String sessionUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!sessionUsername.equals(dto.getUsername())) {
+            throw new AccessDeniedException("본인 계정만 수정 가능");
+        }
+
+        // 조회
+        UserEntity entity = userRepository.findByUsername(dto.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(dto.getUsername()));
+
+        // 회원 정보 수정
+        entity.updateUser(dto);
+
+        return userRepository.save(entity).getId();
+    }
 
 }

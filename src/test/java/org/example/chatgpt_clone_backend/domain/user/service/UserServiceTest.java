@@ -9,10 +9,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,6 +83,29 @@ class UserServiceTest {
 
         // when & then
         assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("kimjihun"));
+
+    }
+
+    @Test
+    @DisplayName("user 도메인 : UserService : updateUser : 테스트 1")
+    void updateUserTest1() {
+
+        // 테스트 : 인증 정보 불일치 실패
+
+        // given
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("123123");
+        dto.setNickname("xxxjjhhh");
+        dto.setEmail("xxxjjhh@naver.com");
+
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("xxxjjhhh");
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        // when & then
+        assertThrows(AccessDeniedException.class, () -> userService.updateUser(dto));
 
     }
 

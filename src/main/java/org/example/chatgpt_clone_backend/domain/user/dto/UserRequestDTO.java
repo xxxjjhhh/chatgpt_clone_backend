@@ -10,12 +10,16 @@ import lombok.Setter;
 @Setter
 public class UserRequestDTO {
 
-    @NotBlank @Size(min = 4)
+    public interface addGroup {} // 회원 가입시
+    public interface passwordGroup {} // 비밀번호 변경시
+    public interface updateGroup {} // 회원 수정시
+
+    @NotBlank(groups = {addGroup.class, updateGroup.class}) @Size(min = 4)
     private String username;
-    @NotBlank @Size(min = 4)
+    @NotBlank(groups = {addGroup.class, passwordGroup.class}) @Size(min = 4)
     private String password;
-    @NotBlank
+    @NotBlank(groups = {addGroup.class, updateGroup.class})
     private String nickname;
-    @Email
+    @Email(groups = {addGroup.class, updateGroup.class})
     private String email;
 }
