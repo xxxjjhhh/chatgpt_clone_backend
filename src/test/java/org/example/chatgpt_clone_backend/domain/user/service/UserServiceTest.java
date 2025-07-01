@@ -1,5 +1,6 @@
 package org.example.chatgpt_clone_backend.domain.user.service;
 
+import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
@@ -10,10 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,7 +26,45 @@ class UserServiceTest {
     UserService userService;
 
     @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
     UserRepository userRepository;
+
+    @Test
+    @DisplayName("user 도메인 : UserService : addUser : 테스트 1")
+    void addUserTest1() {
+
+        // 테스트 : 회원 가입 성공 id 반환
+
+        // given
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("xxxjjhhh");
+        dto.setPassword("password");
+        dto.setNickname("devyummi");
+        dto.setEmail("xxxjjhhh@naver.com");
+
+        UserEntity entity = UserEntity.builder()
+                .id(1L)
+                .username(dto.getUsername())
+                .password("암호화된비번")
+                .email(dto.getEmail())
+                .nickname(dto.getNickname())
+                .isLock(false)
+                .social(false)
+                .roleType(UserRoleType.USER)
+                .build();
+
+        given(userRepository.save(any(UserEntity.class))).willReturn(entity);
+        given(passwordEncoder.encode("password")).willReturn("암호화된비번");
+
+        // when
+        Long id = userService.addUser(dto);
+
+        // then
+        assertEquals(1L, id);
+
+    }
 
     @Test
     @DisplayName("user 도메인 : UserService : loadUserByUsername : 테스트 1")
@@ -36,9 +77,7 @@ class UserServiceTest {
                 .willReturn(Optional.empty());
 
         // when & then
-        assertThrows(UsernameNotFoundException.class, () -> {
-            userService.loadUserByUsername("kimjihun");
-        });
+        assertThrows(UsernameNotFoundException.class, () -> userService.loadUserByUsername("kimjihun"));
 
     }
 
