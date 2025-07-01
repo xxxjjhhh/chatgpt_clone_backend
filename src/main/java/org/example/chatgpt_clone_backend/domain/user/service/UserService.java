@@ -4,6 +4,7 @@ import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -77,6 +78,25 @@ public class UserService implements UserDetailsService {
         entity.updateUser(dto);
 
         return userRepository.save(entity).getId();
+    }
+
+    // 자체/소셜 로그인 회원 탈퇴
+    @Transactional
+    public void deleteUser(UserRequestDTO dto) throws AccessDeniedException {
+
+        // 본인 및 어드민만 삭제 가능 검증
+        SecurityContext context = SecurityContextHolder.getContext();
+        String sessionUsername = context.getAuthentication().getName();
+        String sessionRole = context.getAuthentication().getAuthorities().iterator().next().getAuthority();
+
+        boolean isOwner = sessionUsername.equals(dto.getUsername());
+        boolean isAdmin = sessionRole.equals("ROLE_"+UserRoleType.ADMIN.name());
+
+        if (!isOwner && !isAdmin) {
+            throw new AccessDeniedException("본인 혹은 관리자만 삭제할 수 있습니다.");
+        }
+
+        userRepository.deleteByUsername(dto.getUsername());
     }
 
 }

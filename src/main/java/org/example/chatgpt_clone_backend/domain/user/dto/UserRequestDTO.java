@@ -13,8 +13,9 @@ public class UserRequestDTO {
     public interface addGroup {} // 회원 가입시
     public interface passwordGroup {} // 비밀번호 변경시
     public interface updateGroup {} // 회원 수정시
+    public interface deleteGroup {} // 회원 삭제시
 
-    @NotBlank(groups = {addGroup.class, updateGroup.class}) @Size(min = 4)
+    @NotBlank(groups = {addGroup.class, updateGroup.class, deleteGroup.class}) @Size(min = 4)
     private String username;
     @NotBlank(groups = {addGroup.class, passwordGroup.class}) @Size(min = 4)
     private String password;

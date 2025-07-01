@@ -109,4 +109,18 @@ class UserServiceTest {
 
     }
 
+    @Test
+    @DisplayName("user 도메인 : UserService : deleteUser : 테스트 1")
+    void deleteUserTest1() {
+
+        // 테스트 :
+
+        // given
+
+
+        // when & then
+
+
+    }
+
 }
