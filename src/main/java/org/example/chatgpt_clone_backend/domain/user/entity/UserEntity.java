@@ -33,6 +33,9 @@ public class UserEntity {
     @Column(name = "social", nullable = false)
     private Boolean social; // 자체/소셜 계정 여부
 
+    @Column(name = "social_provider_type")
+    private SocialProviderType socialProviderType; // 소셜 계정이면 제공자 타입
+
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type", nullable = false)
     private UserRoleType roleType;
