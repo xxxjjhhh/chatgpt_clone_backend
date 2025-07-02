@@ -26,7 +26,7 @@ public class RefreshEntity {
     @Column(name = "username", nullable = false)
     private String username;
 
-    @Column(name = "refresh", nullable = false, length = 512)
+    @Column(name = "refresh", nullable = false, unique = true, length = 512)
     private String refresh;
 
     @CreatedDate
