@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "user_user_entity")
 @Getter
 @Builder
