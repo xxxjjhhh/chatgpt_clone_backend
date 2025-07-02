@@ -3,6 +3,7 @@ package org.example.chatgpt_clone_backend.handler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
 import org.example.chatgpt_clone_backend.util.JWTUtil;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -12,6 +13,12 @@ import java.io.IOException;
 
 @Component
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+    private final JwtService jwtService;
+
+    public LoginSuccessHandler(JwtService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -25,6 +32,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         String refreshToken = JWTUtil.createJWT(username, role, false);
 
         // 발급한 Refresh DB 테이블 저장 (Refresh whitelist)
+        jwtService.addRefresh(username, refreshToken);
 
         // 응답
         response.setContentType("application/json");
