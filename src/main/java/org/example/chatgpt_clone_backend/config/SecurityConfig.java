@@ -2,6 +2,7 @@ package org.example.chatgpt_clone_backend.config;
 
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.filter.LoginFilter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -26,7 +27,9 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, AuthenticationSuccessHandler authenticationSuccessHandler) {
+    public SecurityConfig(
+            AuthenticationConfiguration authenticationConfiguration,
+            @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler authenticationSuccessHandler) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.authenticationSuccessHandler = authenticationSuccessHandler;
     }
