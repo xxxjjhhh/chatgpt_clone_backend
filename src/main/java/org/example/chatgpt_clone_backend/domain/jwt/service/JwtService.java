@@ -1,7 +1,11 @@
 package org.example.chatgpt_clone_backend.domain.jwt.service;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import org.example.chatgpt_clone_backend.domain.jwt.dto.JWTResponseDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.entity.RefreshEntity;
 import org.example.chatgpt_clone_backend.domain.jwt.repository.RefreshRepository;
+import org.example.chatgpt_clone_backend.util.JWTUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,6 +16,57 @@ public class JwtService {
 
     public JwtService(RefreshRepository refreshRepository) {
         this.refreshRepository = refreshRepository;
+    }
+
+    // 소셜 로그인 성공 후 쿠키(Refresh) -> 헤더 방식으로 응답
+    @Transactional
+    public JWTResponseDTO cookie2Header(HttpServletRequest request) {
+
+        // 쿠키 리스트
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            throw new RuntimeException("쿠키가 존재하지 않습니다.");
+        }
+
+        // Refresh 토큰 획득
+        String refreshToken = null;
+        for (Cookie cookie : cookies) {
+            if ("refreshToken".equals(cookie.getName())) {
+                refreshToken = cookie.getValue();
+                break;
+            }
+        }
+
+        if (refreshToken == null) {
+            throw new RuntimeException("refreshToken 쿠키가 없습니다.");
+        }
+
+        // Refresh 토큰 검증
+        Boolean isValid = JWTUtil.isValid(refreshToken, false);
+        if (!isValid) {
+            throw new RuntimeException("유효하지 않은 refreshToken입니다.");
+        }
+
+        // 정보 추출
+        String username = JWTUtil.getUsername(refreshToken);
+        String role = JWTUtil.getRole(refreshToken);
+
+        System.out.println("Asdfasdfasdfasdfsadfasdfsdf");
+
+        // 토큰 생성
+        String newAccessToken = JWTUtil.createJWT(username, role, true);
+        String newRefreshToken = JWTUtil.createJWT(username, role, false);
+
+        // 기존 Refresh 토큰 DB 삭제 후 신규 추가
+        RefreshEntity newRefreshEntity = RefreshEntity.builder()
+                .username(username)
+                .refresh(newRefreshToken)
+                .build();
+
+        removeRefresh(refreshToken);
+        refreshRepository.save(newRefreshEntity);
+
+        return new JWTResponseDTO(newAccessToken, newRefreshToken);
     }
 
     // JWT Refresh 토큰 발급 후 저장 메소드
