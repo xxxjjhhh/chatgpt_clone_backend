@@ -51,8 +51,6 @@ public class JwtService {
         String username = JWTUtil.getUsername(refreshToken);
         String role = JWTUtil.getRole(refreshToken);
 
-        System.out.println("Asdfasdfasdfasdfsadfasdfsdf");
-
         // 토큰 생성
         String newAccessToken = JWTUtil.createJWT(username, role, true);
         String newRefreshToken = JWTUtil.createJWT(username, role, false);
