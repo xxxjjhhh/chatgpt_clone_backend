@@ -44,7 +44,7 @@ public class SocialSuccessHandler implements AuthenticationSuccessHandler {
         refreshCookie.setMaxAge(60); // 60초 (프론트에서 발급 후 바로 헤더 전환 로직 진행 예정)
 
         response.addCookie(refreshCookie);
-        response.setStatus(HttpServletResponse.SC_OK);
+        response.sendRedirect("http://localhost:5173/cookie");
     }
 
 }
