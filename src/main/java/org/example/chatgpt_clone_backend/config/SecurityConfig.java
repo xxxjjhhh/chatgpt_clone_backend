@@ -1,6 +1,7 @@
 package org.example.chatgpt_clone_backend.config;
 
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
+import org.example.chatgpt_clone_backend.filter.JWTFilter;
 import org.example.chatgpt_clone_backend.filter.LoginFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
@@ -106,6 +108,8 @@ public class SecurityConfig {
 
         // 커스텀 필터 추가
         http
+                .addFilterBefore(new JWTFilter(), LogoutFilter.class);
+        http
                 .addFilterBefore(new LoginFilter(authenticationManager(authenticationConfiguration), loginSuccessHandler), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 필터 설정 (STATELESS)
@@ -115,6 +119,5 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
 }
