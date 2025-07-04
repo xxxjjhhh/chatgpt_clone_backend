@@ -44,11 +44,12 @@ public class ChatService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Prompt prompt = new Prompt();
-        String titleSummation = openAiChatClient.prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text)
+        Prompt prompt = new Prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text);
+        String titleSummation = openAiChatClient.prompt(prompt)
                 .call()
                 .content();
 
+        // 채팅 페이지 생성
         PageEntity entity = PageEntity.builder()
                 .username(username)
                 .title(titleSummation)
