@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,15 +33,17 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final AuthenticationSuccessHandler loginSuccessHandler;
     private final AuthenticationSuccessHandler socialSuccessHandler;
+    private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
 
     public SecurityConfig(
             AuthenticationConfiguration authenticationConfiguration,
             @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler,
-            @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler
+            @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler, OAuth2AuthorizedClientService oAuth2AuthorizedClientService
     ) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginSuccessHandler = loginSuccessHandler;
         this.socialSuccessHandler = socialSuccessHandler;
+        this.oAuth2AuthorizedClientService = oAuth2AuthorizedClientService;
     }
 
     // 커스텀 자체 로그인 필터를 위한 AuthenticationManager Bean 수동 등록
@@ -99,6 +102,7 @@ public class SecurityConfig {
         // OAuth2(OIDC) 인증용 설정
         http
                 .oauth2Login(oauth2 -> oauth2
+                        .authorizedClientService(oAuth2AuthorizedClientService)
                         .successHandler(socialSuccessHandler));
 
         // 인가
