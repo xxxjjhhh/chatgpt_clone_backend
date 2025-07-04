@@ -13,3 +13,13 @@ CREATE TABLE IF NOT EXISTS oauth2_authorized_client (
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     PRIMARY KEY (client_registration_id, principal_name)
 );
+
+-- Spring AI Chat Memory JDBC 용 sql
+CREATE TABLE IF NOT EXISTS SPRING_AI_CHAT_MEMORY (
+                                                     `conversation_id` VARCHAR(36) NOT NULL,
+    `content` TEXT NOT NULL,
+    `type` ENUM('USER', 'ASSISTANT', 'SYSTEM', 'TOOL') NOT NULL,
+    `timestamp` TIMESTAMP NOT NULL,
+
+    INDEX `SPRING_AI_CHAT_MEMORY_CONVERSATION_ID_TIMESTAMP_IDX` (`conversation_id`, `timestamp`)
+);
