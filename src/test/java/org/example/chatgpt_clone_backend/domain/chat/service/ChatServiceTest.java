@@ -2,6 +2,7 @@ package org.example.chatgpt_clone_backend.domain.chat.service;
 
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.entity.ChatEntity;
+import org.example.chatgpt_clone_backend.domain.chat.entity.PageEntity;
 import org.example.chatgpt_clone_backend.domain.chat.repository.ChatRepository;
 import org.example.chatgpt_clone_backend.domain.chat.repository.PageRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -11,9 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ai.chat.messages.MessageType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,6 +44,15 @@ class ChatServiceTest {
         // given
         Long pageId = 1L;
 
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("xxxjjhhh", null, List.of())
+        );
+
+        PageEntity page1 = PageEntity.builder()
+                .id(pageId)
+                .username("xxxjjhhh")
+                .build();
+
         ChatEntity chat1 = ChatEntity.builder()
                 .id(1L)
                 .pageId(pageId)
@@ -57,6 +70,7 @@ class ChatServiceTest {
                 .build();
 
         List<ChatEntity> mockResult = List.of(chat1, chat2);
+        given(pageRepository.findById(pageId)).willReturn(Optional.of(page1));
         given(chatRepository.findByPageIdOrderByCreatedDateAsc(pageId)).willReturn(mockResult);
 
         // when

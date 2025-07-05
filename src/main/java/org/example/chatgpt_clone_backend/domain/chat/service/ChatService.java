@@ -71,7 +71,7 @@ public class ChatService {
             return Collections.emptyList();
         }
 
-        if (pageEntity.get().getUsername().equals(username)) {
+        if (!pageEntity.get().getUsername().equals(username)) {
             return Collections.emptyList();
         }
 
