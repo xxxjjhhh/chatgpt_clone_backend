@@ -141,13 +141,25 @@ public class ChatService {
 
     // 채팅 내역 삭제
     @Transactional
-    public void deletePageChat(Long chatId) {
+    public Boolean deletePageChat(Long pageId) {
+
+        // pageId 값의 PageEntity username이 세션 username 이랑 같은지
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<PageEntity> pageEntity = pageRepository.findById(pageId);
+        if (pageEntity.isEmpty()) {
+            return false;
+        }
+
+        if (!pageEntity.get().getUsername().equals(username)) {
+            return false;
+        }
 
         // 채팅 내역 삭제
-        chatRepository.deleteByPageId(chatId);
-
+        chatRepository.deleteByPageId(pageId);
         // 채팅 페이지 삭제
-        pageRepository.deleteById(chatId);
+        pageRepository.deleteById(pageId);
+
+        return true;
     }
 
 }
