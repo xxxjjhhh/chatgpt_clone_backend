@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+import java.util.Map;
+
 @RestController
 public class UserController {
 
@@ -19,9 +22,10 @@ public class UserController {
     }
 
     @PostMapping(value = "/user/join", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Long> joinApi(@Validated(UserRequestDTO.addGroup.class) @RequestBody UserRequestDTO dto) {
+    public ResponseEntity<Map<String, Long>> joinApi(@Validated(UserRequestDTO.addGroup.class) @RequestBody UserRequestDTO dto) {
         Long id = userService.addUser(dto);
-        return ResponseEntity.status(201).body(id);
+        Map<String, Long> responseBody = Collections.singletonMap("userEntityId", id);
+        return ResponseEntity.status(201).body(responseBody);
     }
 
 }

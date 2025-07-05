@@ -6,6 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.util.Collections;
+import java.util.Map;
+
 @RestController
 public class ChatController {
 
@@ -17,9 +20,10 @@ public class ChatController {
 
     // 신규 채팅 시작
     @PostMapping("/chat")
-    public ResponseEntity<Long> createChatApi(@RequestBody ChatRequestDTO dto) {
+    public ResponseEntity<Map<String, Long>> createChatApi(@RequestBody ChatRequestDTO dto) {
         Long pageId = chatService.createPage(dto.getText());
-        return ResponseEntity.status(201).body(pageId);
+        Map<String, Long> responseBody = Collections.singletonMap("pageId", pageId);
+        return ResponseEntity.status(201).body(responseBody);
     }
 
     // 채팅 메시지 응답
