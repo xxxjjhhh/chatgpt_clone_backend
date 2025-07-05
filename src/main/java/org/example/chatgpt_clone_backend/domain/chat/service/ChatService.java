@@ -46,7 +46,13 @@ public class ChatService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Prompt prompt = new Prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text);
+        // 옵션
+        OpenAiChatOptions options = OpenAiChatOptions.builder()
+                .model(OpenAiApi.ChatModel.GPT_4_1_NANO)
+                .temperature(0.7)
+                .build();
+
+        Prompt prompt = new Prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text, options);
         String titleSummation = openAiChatClient.prompt(prompt)
                 .call()
                 .content();
