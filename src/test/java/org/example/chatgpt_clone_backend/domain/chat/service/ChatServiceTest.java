@@ -60,7 +60,7 @@ class ChatServiceTest {
         given(chatRepository.findByPageIdOrderByCreatedDateAsc(pageId)).willReturn(mockResult);
 
         // when
-        List<ChatResponseDTO> result = chatService.readAllChatsPageId(String.valueOf(pageId));
+        List<ChatResponseDTO> result = chatService.readAllChatsPageId(pageId);
 
         // then
         assertThat(result.get(0).content()).isEqualTo("안녕하세요");

@@ -21,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatService {
@@ -60,8 +62,21 @@ public class ChatService {
 
     // 기존 채팅 대화 내역 불러오기
     @Transactional(readOnly = true)
-    public List<ChatResponseDTO> readAllChatsPageId(String pageId) {
-        return chatRepository.findByPageIdOrderByCreatedDateAsc(Long.valueOf(pageId)).stream()
+    public List<ChatResponseDTO> readAllChatsPageId(Long pageId) {
+
+        // pageId 값의 PageEntity username이 세션 username 이랑 같은지
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<PageEntity> pageEntity = pageRepository.findById(pageId);
+        if (pageEntity.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        if (pageEntity.get().getUsername().equals(username)) {
+            return Collections.emptyList();
+        }
+
+        // 조회 후 응답
+        return chatRepository.findByPageIdOrderByCreatedDateAsc(pageId).stream()
                 .map(entity -> new ChatResponseDTO(
                         entity.getContent(),
                         entity.getMessageType()
