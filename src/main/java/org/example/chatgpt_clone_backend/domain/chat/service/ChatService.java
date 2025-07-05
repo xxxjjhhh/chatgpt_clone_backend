@@ -52,12 +52,23 @@ public class ChatService {
                 .content();
 
         // 채팅 페이지 생성
-        PageEntity entity = PageEntity.builder()
+        PageEntity pageEntity = PageEntity.builder()
                 .username(username)
                 .title(titleSummation)
                 .build();
 
-        return pageRepository.save(entity).getId();
+        Long pageId = pageRepository.save(pageEntity).getId();
+
+        // ChatEntity 대화 추가
+        ChatEntity chatEntity = ChatEntity.builder()
+                .pageId(pageId)
+                .content(text)
+                .messageType(MessageType.USER)
+                .build();
+
+        chatRepository.save(chatEntity);
+
+        return pageId;
     }
 
     // 기존 채팅 대화 내역 불러오기
