@@ -140,5 +140,14 @@ public class ChatService {
     }
 
     // 채팅 내역 삭제
+    @Transactional
+    public void deletePageChat(Long chatId) {
+
+        // 채팅 내역 삭제
+        chatRepository.deleteByPageId(chatId);
+
+        // 채팅 페이지 삭제
+        pageRepository.deleteById(chatId);
+    }
 
 }
