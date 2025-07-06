@@ -43,6 +43,10 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     @Transactional
     public Long addUser(UserRequestDTO dto) {
 
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new IllegalArgumentException("이미 사용 중인 사용자 이름입니다.");
+        }
+
         UserEntity entity = UserEntity.builder()
                 .username(dto.getUsername())
                 .password(passwordEncoder.encode(dto.getPassword()))

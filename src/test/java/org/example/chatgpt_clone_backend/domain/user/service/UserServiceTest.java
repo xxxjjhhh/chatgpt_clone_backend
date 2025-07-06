@@ -72,6 +72,27 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("user 도메인 : UserService : addUser : 테스트 2")
+    void addUserTest2() {
+
+        // 테스트 : 회원 가입 중복 여부 확인
+
+        // given
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("xxxjjhhh");
+        dto.setPassword("password");
+        dto.setNickname("devyummi");
+        dto.setEmail("xxxjjhhh@naver.com");
+
+        given(userRepository.existsByUsername(dto.getUsername())).willReturn(true);
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () -> userService.addUser(dto));
+
+    }
+
+
+    @Test
     @DisplayName("user 도메인 : UserService : loadUserByUsername : 테스트 1")
     void loadUserByUsernameTest1() {
 
