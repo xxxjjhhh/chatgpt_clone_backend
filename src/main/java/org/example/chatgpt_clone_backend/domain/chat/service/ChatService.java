@@ -46,14 +46,14 @@ public class ChatService {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 옵션
-        OpenAiChatOptions options = OpenAiChatOptions.builder()
+        // 옵션 (제목 요약)
+        OpenAiChatOptions optionsSummation = OpenAiChatOptions.builder()
                 .model(OpenAiApi.ChatModel.GPT_4_1_NANO)
                 .temperature(0.7)
                 .build();
 
-        Prompt prompt = new Prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text, options);
-        String titleSummation = openAiChatClient.prompt(prompt)
+        Prompt promptSummation = new Prompt("다음 내용을 약 12자 이내로 요약해서 제목을 지어줘:\n" + text, optionsSummation);
+        String titleSummation = openAiChatClient.prompt(promptSummation)
                 .call()
                 .content();
 
@@ -62,17 +62,9 @@ public class ChatService {
                 .username(username)
                 .title(titleSummation)
                 .build();
-
         Long pageId = pageRepository.save(pageEntity).getId();
 
-        // ChatEntity 대화 추가
-        ChatEntity chatEntity = ChatEntity.builder()
-                .pageId(pageId)
-                .content(text)
-                .messageType(MessageType.USER)
-                .build();
-
-        chatRepository.save(chatEntity);
+        generateText(text, String.valueOf(pageId));
 
         return pageId;
     }
@@ -101,7 +93,7 @@ public class ChatService {
                 .toList();
     }
 
-    // LLM API 호출
+    // LLM API 호출 (스트림)
     @Transactional
     public Flux<String> generateTextStream(String text, String pageId) {
 
@@ -153,7 +145,54 @@ public class ChatService {
 
                     chatRepository.saveAll(List.of(chatUserEntity, chatAssistantEntity));
                 });
+    }
 
+    // LLM API 호출 (논스트림)
+    @Transactional
+    public String generateText(String text, String pageId) {
+
+        // 전체 대화 저장용
+        ChatEntity chatUserEntity = ChatEntity.builder()
+                .pageId(Long.valueOf(pageId))
+                .content(text)
+                .messageType(MessageType.USER)
+                .build();
+
+        // 멀티턴용 Prompt 메시지
+        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .maxMessages(20)
+                .chatMemoryRepository(chatMemoryRepository)
+                .build();
+        chatMemory.add(pageId, new UserMessage(text));// 신규 메시지 추가
+
+        // 옵션
+        OpenAiChatOptions options = OpenAiChatOptions.builder()
+                .model(OpenAiApi.ChatModel.GPT_4_1_NANO)
+                .temperature(0.7)
+                .build();
+
+        // 프롬프트
+        Prompt prompt = new Prompt(chatMemory.get(pageId), options);
+
+        String responseData = openAiChatClient.prompt(prompt)
+                .call()
+                .content();
+        responseData = responseData != null ? responseData : "죄송합니다, 답변을 생성하지 못했습니다.";
+
+        // 멀티턴용
+        chatMemory.add(pageId, new AssistantMessage(responseData));
+        chatMemoryRepository.saveAll(pageId, chatMemory.get(pageId));
+
+        // 전체 대화 저장용
+        ChatEntity chatAssistantEntity = ChatEntity.builder()
+                .pageId(Long.valueOf(pageId))
+                .content(responseData)
+                .messageType(MessageType.ASSISTANT)
+                .build();
+
+        chatRepository.saveAll(List.of(chatUserEntity, chatAssistantEntity));
+
+        return responseData;
     }
 
     // 채팅 내역 삭제
