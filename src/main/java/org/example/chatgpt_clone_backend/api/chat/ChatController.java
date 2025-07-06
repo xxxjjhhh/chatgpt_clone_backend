@@ -1,12 +1,14 @@
 package org.example.chatgpt_clone_backend.api.chat;
 
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatRequestDTO;
+import org.example.chatgpt_clone_backend.domain.chat.dto.ChatResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.service.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -42,6 +44,12 @@ public class ChatController {
         } else {
             return ResponseEntity.status(400).build();
         }
+    }
+
+    // 채팅 페이지 대화 목록 가져오기
+    @PostMapping("/chat/history/{pageId}")
+    public List<ChatResponseDTO> pageHistoryApi(@PathVariable("pageId") Long pageId) {
+        return chatService.readAllChatsPageId(pageId);
     }
 
 }
