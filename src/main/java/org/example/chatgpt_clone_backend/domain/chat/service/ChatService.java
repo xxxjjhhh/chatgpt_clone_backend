@@ -20,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Collections;
 import java.util.List;
@@ -143,7 +145,17 @@ public class ChatService {
                             .messageType(MessageType.ASSISTANT)
                             .build();
 
-                    chatRepository.saveAll(List.of(chatUserEntity, chatAssistantEntity));
+                    // flux에서 블로킹 처리
+                    Mono.fromRunnable(() -> {
+                        // 히스토리 대화 저장
+                        chatRepository.saveAll(List.of(chatUserEntity, chatAssistantEntity));
+
+                        // 채팅 변경시 페이지 업데이트 시간 변경
+                        pageRepository.findById(Long.valueOf(pageId)).ifPresent(page -> {
+                            page.updateTime();
+                            pageRepository.save(page);
+                        });
+                    }).subscribeOn(Schedulers.boundedElastic()).subscribe();
                 });
     }
 
