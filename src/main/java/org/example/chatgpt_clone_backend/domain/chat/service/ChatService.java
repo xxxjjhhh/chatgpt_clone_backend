@@ -1,6 +1,7 @@
 package org.example.chatgpt_clone_backend.domain.chat.service;
 
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatResponseDTO;
+import org.example.chatgpt_clone_backend.domain.chat.dto.PageResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.entity.ChatEntity;
 import org.example.chatgpt_clone_backend.domain.chat.entity.PageEntity;
 import org.example.chatgpt_clone_backend.domain.chat.repository.ChatRepository;
@@ -177,6 +178,20 @@ public class ChatService {
         pageRepository.deleteById(pageId);
 
         return true;
+    }
+
+    // 유저별 채팅 페이지 목록
+    @Transactional(readOnly = true)
+    public List<PageResponseDTO> readAllPages() {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        return pageRepository.findByUsernameOrderByUpdatedDateDesc(username).stream()
+                .map(entity -> new PageResponseDTO(
+                        entity.getId(),
+                        entity.getTitle())
+                ).
+                toList();
     }
 
 }
