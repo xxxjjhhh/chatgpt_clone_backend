@@ -2,8 +2,11 @@ package org.example.chatgpt_clone_backend.api.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.example.chatgpt_clone_backend.domain.jwt.dto.JWTResponseDTO;
+import org.example.chatgpt_clone_backend.domain.jwt.dto.RefreshRequestDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,6 +22,12 @@ public class JwtController {
     @PostMapping("/jwt/exchange")
     public JWTResponseDTO jwtExchangeApi(HttpServletRequest request) {
         return jwtService.cookie2Header(request);
+    }
+
+    // Refresh 토큰으로 Access 토큰 재발급 (Rotate 포함)
+    @PostMapping("/jwt/refresh")
+    public JWTResponseDTO jwtRefreshApi(@Validated @RequestBody RefreshRequestDTO dto) {
+        return jwtService.refreshRotate(dto);
     }
 
 }
