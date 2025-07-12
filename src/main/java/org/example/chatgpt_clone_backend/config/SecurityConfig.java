@@ -1,8 +1,10 @@
 package org.example.chatgpt_clone_backend.config;
 
+import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.filter.JWTFilter;
 import org.example.chatgpt_clone_backend.filter.LoginFilter;
+import org.example.chatgpt_clone_backend.handler.RefreshTokenLogoutHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,16 +36,20 @@ public class SecurityConfig {
     private final AuthenticationSuccessHandler loginSuccessHandler;
     private final AuthenticationSuccessHandler socialSuccessHandler;
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
+    private final JwtService jwtService;
 
     public SecurityConfig(
             AuthenticationConfiguration authenticationConfiguration,
             @Qualifier("LoginSuccessHandler") AuthenticationSuccessHandler loginSuccessHandler,
-            @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler, OAuth2AuthorizedClientService oAuth2AuthorizedClientService
+            @Qualifier("SocialSuccessHandler") AuthenticationSuccessHandler socialSuccessHandler,
+            OAuth2AuthorizedClientService oAuth2AuthorizedClientService,
+            JwtService jwtService
     ) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.loginSuccessHandler = loginSuccessHandler;
         this.socialSuccessHandler = socialSuccessHandler;
         this.oAuth2AuthorizedClientService = oAuth2AuthorizedClientService;
+        this.jwtService = jwtService;
     }
 
     // 커스텀 자체 로그인 필터를 위한 AuthenticationManager Bean 수동 등록
@@ -90,6 +96,11 @@ public class SecurityConfig {
 
                     return configuration;
                 }));
+
+        // 기본 로그아웃 필터 + 커스텀 Refresh 토큰 삭제 핸들러 추가
+        http
+                .logout(logout -> logout
+                        .addLogoutHandler(new RefreshTokenLogoutHandler(jwtService)));
 
         // 기본 Form 기반 인증 필터들 disable
         http
