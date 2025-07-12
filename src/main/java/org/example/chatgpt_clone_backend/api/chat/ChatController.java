@@ -2,6 +2,7 @@ package org.example.chatgpt_clone_backend.api.chat;
 
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatRequestDTO;
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatResponseDTO;
+import org.example.chatgpt_clone_backend.domain.chat.dto.PageResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.service.ChatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,12 @@ public class ChatController {
 
     public ChatController(ChatService chatService) {
         this.chatService = chatService;
+    }
+
+    // 유저별 페이지 목록
+    @GetMapping("/chat")
+    public List<PageResponseDTO> readAllPageApi() {
+        return chatService.readAllPages();
     }
 
     // 신규 채팅 시작
