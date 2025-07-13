@@ -96,7 +96,6 @@ public class JwtService {
                 .build();
 
         removeRefresh(refreshToken);
-        refreshRepository.flush(); // 같은 트랜잭션 내부라 : 삭제 -> 생성 문제 해결
         refreshRepository.save(newRefreshEntity);
 
         return new JWTResponseDTO(newAccessToken, newRefreshToken);
