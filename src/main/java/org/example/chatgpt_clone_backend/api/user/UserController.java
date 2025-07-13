@@ -6,10 +6,7 @@ import org.example.chatgpt_clone_backend.domain.user.service.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.Map;
@@ -38,7 +35,7 @@ public class UserController {
     }
 
     // 유저 정보
-    @GetMapping("/user/me")
+    @GetMapping("/user")
     public UserResponseDTO userMeApi() {
         return userService.readUser();
     }
