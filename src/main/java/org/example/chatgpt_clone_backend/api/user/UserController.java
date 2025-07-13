@@ -27,7 +27,7 @@ public class UserController {
     }
 
     // 회원가입
-    @PostMapping(value = "/user/join", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/user", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Long>> joinApi(@Validated(UserRequestDTO.addGroup.class) @RequestBody UserRequestDTO dto) {
         Long id = userService.addUser(dto);
         Map<String, Long> responseBody = Collections.singletonMap("userEntityId", id);
