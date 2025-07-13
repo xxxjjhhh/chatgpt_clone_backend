@@ -145,7 +145,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         }
 
         // 데이터베이스 조회 -> 존재하면 업데이트, 없으면 신규 가입
-        Optional<UserEntity> entity = userRepository.findByUsernameAndIsLockAndSocial(username, false, true);
+        Optional<UserEntity> entity = userRepository.findByUsernameAndSocial(username, true);
         if (entity.isPresent()) {
             // role 조회
             role = entity.get().getRoleType().name();
