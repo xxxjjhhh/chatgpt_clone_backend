@@ -2,6 +2,7 @@ package org.example.chatgpt_clone_backend.domain.user.service;
 
 import org.example.chatgpt_clone_backend.domain.user.dto.CustomOAuth2User;
 import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
+import org.example.chatgpt_clone_backend.domain.user.dto.UserResponseDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.SocialProviderType;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
@@ -175,6 +176,17 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         authorities = List.of(new SimpleGrantedAuthority(role));
 
         return new CustomOAuth2User(attributes, authorities, username);
+    }
+
+    // 자체/소셜 유저 정보 조회 (세션)
+    @Transactional(readOnly = true)
+    public UserResponseDTO readUser() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserEntity entity = userRepository.findByUsernameAndIsLock(username, false)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다: " + username));
+
+        return new UserResponseDTO(username, entity.getNickname(), entity.getEmail());
     }
 
 }

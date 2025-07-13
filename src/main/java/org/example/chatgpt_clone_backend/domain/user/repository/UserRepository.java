@@ -9,6 +9,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     Boolean existsByUsername(String username);
 
+    Optional<UserEntity> findByUsernameAndSocial(String username, Boolean social);
+    Optional<UserEntity> findByUsernameAndIsLock(String username, Boolean isLock);
     Optional<UserEntity> findByUsernameAndIsLockAndSocial(String username, Boolean isLock, Boolean social);
 
     void deleteByUsername(String username);
