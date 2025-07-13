@@ -94,7 +94,6 @@ public class ChatService {
     }
 
     // LLM API 호출 (스트림)
-    @Transactional
     public Flux<String> generateTextStream(String text, String pageId) {
 
         // 전체 대화 저장용
