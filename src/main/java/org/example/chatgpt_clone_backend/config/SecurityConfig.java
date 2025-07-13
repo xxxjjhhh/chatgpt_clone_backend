@@ -119,7 +119,11 @@ public class SecurityConfig {
         // 인가
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll());
+                        .requestMatchers("/chat", "/chat/**").hasRole(UserRoleType.USER.name())
+                        .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll()
+                        .requestMatchers("/user/exist", "/user/join").permitAll()
+                        .anyRequest().authenticated()
+                );
 
         // 커스텀 필터 추가
         http
