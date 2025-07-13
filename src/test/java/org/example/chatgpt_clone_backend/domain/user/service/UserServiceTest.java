@@ -37,6 +37,46 @@ class UserServiceTest {
     UserRepository userRepository;
 
     @Test
+    @DisplayName("user 도메인 : UserService : existUser : 테스트 1")
+    void existUserTest1() {
+
+        // 테스트 : User 있는 경우 true
+
+        // given
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("xxxjjhhh");
+
+        given(userRepository.existsByUsername("xxxjjhhh")).willReturn(true);
+
+        // when
+        Boolean isExist = userService.existUser(dto);
+
+        // then
+        assertTrue(isExist);
+
+    }
+
+    @Test
+    @DisplayName("user 도메인 : UserService : existUser : 테스트 2")
+    void existUserTest2() {
+
+        // 테스트 : User 없는 경우 false
+
+        // given
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("xxxjjhhh");
+
+        given(userRepository.existsByUsername("xxxjjhhh")).willReturn(false);
+
+        // when
+        Boolean isExist = userService.existUser(dto);
+
+        // then
+        assertFalse(isExist);
+
+    }
+
+    @Test
     @DisplayName("user 도메인 : UserService : addUser : 테스트 1")
     void addUserTest1() {
 

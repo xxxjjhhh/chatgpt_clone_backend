@@ -39,6 +39,12 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         this.passwordEncoder = passwordEncoder;
     }
 
+    // 자체 로그인 회원 가입 존재 여부
+    @Transactional(readOnly = true)
+    public Boolean existUser(UserRequestDTO dto) {
+        return userRepository.existsByUsername(dto.getUsername());
+    }
+
     // 자체 로그인 회원가입 (자체 인증 가입 후 로그인 시킬 예정 따라서 Long 응답)
     @Transactional
     public Long addUser(UserRequestDTO dto) {
