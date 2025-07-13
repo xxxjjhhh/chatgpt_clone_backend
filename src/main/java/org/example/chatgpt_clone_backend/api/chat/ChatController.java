@@ -54,7 +54,7 @@ public class ChatController {
     }
 
     // 채팅 페이지 대화 목록 가져오기
-    @PostMapping("/chat/{pageId}")
+    @GetMapping("/chat/{pageId}")
     public List<ChatResponseDTO> pageHistoryApi(@PathVariable("pageId") Long pageId) {
         return chatService.readAllChatsPageId(pageId);
     }
