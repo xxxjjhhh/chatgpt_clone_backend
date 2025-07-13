@@ -6,7 +6,6 @@ import org.example.chatgpt_clone_backend.domain.user.entity.SocialProviderType;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -65,13 +64,8 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        UserEntity entity = userRepository.findByUsername(username)
+        UserEntity entity = userRepository.findByUsernameAndIsLockAndSocial(username, false, false)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
-
-        // 소셜 아이디가 들어올 경우 로그인 방지
-        if (entity.getSocial()) {
-            throw new DisabledException("소셜 계정입니다.");
-        }
 
         return User.builder()
                 .username(entity.getUsername())
@@ -92,7 +86,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         }
 
         // 조회
-        UserEntity entity = userRepository.findByUsername(dto.getUsername())
+        UserEntity entity = userRepository.findByUsernameAndIsLockAndSocial(dto.getUsername(), false, false)
                 .orElseThrow(() -> new UsernameNotFoundException(dto.getUsername()));
 
         // 회원 정보 수정
@@ -150,7 +144,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         }
 
         // 데이터베이스 조회 -> 존재하면 업데이트, 없으면 신규 가입
-        Optional<UserEntity> entity = userRepository.findByUsername(username);
+        Optional<UserEntity> entity = userRepository.findByUsernameAndIsLockAndSocial(username, false, true);
         if (entity.isPresent()) {
             // role 조회
             role = entity.get().getRoleType().name();
