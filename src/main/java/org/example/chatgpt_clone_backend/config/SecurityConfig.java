@@ -9,6 +9,7 @@ import org.example.chatgpt_clone_backend.handler.RefreshTokenLogoutHandler;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -128,8 +129,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/chat", "/chat/**").hasRole(UserRoleType.USER.name())
                         .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll()
-                        .requestMatchers("/user/exist", "/user/join").permitAll()
-                        .requestMatchers("/user/me").hasRole(UserRoleType.USER.name())
+                        .requestMatchers(HttpMethod.POST, "/user/exist", "/user").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name())
                         .anyRequest().authenticated()
                 );
 
