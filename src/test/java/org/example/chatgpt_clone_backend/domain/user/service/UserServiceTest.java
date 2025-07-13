@@ -99,7 +99,7 @@ class UserServiceTest {
         // 테스트 : UsernameNotFoundException 체크 (리포지토리에서 empty 던질시)
 
         // given
-        given(userRepository.findByUsername("kimjihun"))
+        given(userRepository.findByUsernameAndIsLockAndSocial("kimjihun", false, false))
                 .willReturn(Optional.empty());
 
         // when & then
