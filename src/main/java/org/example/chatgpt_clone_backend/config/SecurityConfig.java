@@ -129,6 +129,7 @@ public class SecurityConfig {
                         .requestMatchers("/chat", "/chat/**").hasRole(UserRoleType.USER.name())
                         .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll()
                         .requestMatchers("/user/exist", "/user/join").permitAll()
+                        .requestMatchers("/user/me").hasRole(UserRoleType.USER.name())
                         .anyRequest().authenticated()
                 );
 
