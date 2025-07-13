@@ -2,6 +2,7 @@ package org.example.chatgpt_clone_backend.domain.jwt.service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.chatgpt_clone_backend.domain.jwt.dto.JWTResponseDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.dto.RefreshRequestDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.entity.RefreshEntity;
@@ -21,7 +22,10 @@ public class JwtService {
 
     // 소셜 로그인 성공 후 쿠키(Refresh) -> 헤더 방식으로 응답
     @Transactional
-    public JWTResponseDTO cookie2Header(HttpServletRequest request) {
+    public JWTResponseDTO cookie2Header(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
 
         // 쿠키 리스트
         Cookie[] cookies = request.getCookies();
@@ -65,6 +69,14 @@ public class JwtService {
         removeRefresh(refreshToken);
         refreshRepository.flush(); // 같은 트랜잭션 내부라 : 삭제 -> 생성 문제 해결
         refreshRepository.save(newRefreshEntity);
+
+        // 기존 쿠키 제거
+        Cookie refreshCookie = new Cookie("refreshToken", null);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(false);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(10);
+        response.addCookie(refreshCookie);
 
         return new JWTResponseDTO(newAccessToken, newRefreshToken);
     }

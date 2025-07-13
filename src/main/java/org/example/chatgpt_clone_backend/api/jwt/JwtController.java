@@ -1,6 +1,7 @@
 package org.example.chatgpt_clone_backend.api.jwt;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.chatgpt_clone_backend.domain.jwt.dto.JWTResponseDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.dto.RefreshRequestDTO;
 import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
@@ -20,8 +21,8 @@ public class JwtController {
 
     // 소셜 로그인 쿠키 방식의 Refresh 토큰 헤더 방식으로 교환
     @PostMapping("/jwt/exchange")
-    public JWTResponseDTO jwtExchangeApi(HttpServletRequest request) {
-        return jwtService.cookie2Header(request);
+    public JWTResponseDTO jwtExchangeApi(HttpServletRequest request, HttpServletResponse response) {
+        return jwtService.cookie2Header(request, response);
     }
 
     // Refresh 토큰으로 Access 토큰 재발급 (Rotate 포함)
