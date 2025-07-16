@@ -1,6 +1,5 @@
 package org.example.chatgpt_clone_backend.domain.user.service;
 
-import org.example.chatgpt_clone_backend.domain.chat.dto.PageResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.service.ChatService;
 import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
 import org.example.chatgpt_clone_backend.domain.user.dto.CustomOAuth2User;
@@ -188,7 +187,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             // 신규 유저 추가
             UserEntity newUserEntity = UserEntity.builder()
                     .username(username)
-                    .password(passwordEncoder.encode("social"))
+                    .password("")
                     .isLock(false)
                     .social(true)
                     .socialProviderType(SocialProviderType.valueOf(registrationId))
