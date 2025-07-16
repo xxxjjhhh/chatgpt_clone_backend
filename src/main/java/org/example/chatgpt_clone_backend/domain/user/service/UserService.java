@@ -191,7 +191,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
                     .password(passwordEncoder.encode("social"))
                     .isLock(false)
                     .social(true)
-                    .socialProviderType(SocialProviderType.NAVER)
+                    .socialProviderType(SocialProviderType.valueOf(registrationId))
                     .roleType(UserRoleType.USER)
                     .nickname(nickname)
                     .email(email)
