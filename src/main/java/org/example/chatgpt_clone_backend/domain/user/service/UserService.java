@@ -146,6 +146,13 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             email = attributes.get("email").toString();
             nickname = attributes.get("nickname").toString();
 
+        } else if (registrationId.equals(SocialProviderType.GOOGLE.name())) {
+
+            attributes = (Map<String, Object>) oAuth2User.getAttributes();
+            username = registrationId + "_" + attributes.get("sub");
+            email = attributes.get("email").toString();
+            nickname = attributes.get("name").toString();
+            
         } else {
             throw new OAuth2AuthenticationException("지원하지 않는 소셜 로그인입니다.");
         }
