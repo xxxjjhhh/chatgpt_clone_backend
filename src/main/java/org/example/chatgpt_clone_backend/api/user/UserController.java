@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,6 +39,14 @@ public class UserController {
     @GetMapping("/user")
     public UserResponseDTO userMeApi() {
         return userService.readUser();
+    }
+
+    // 유저 제거 (자체/소셜)
+    @DeleteMapping("/user")
+    public ResponseEntity<Boolean> deleteUserApi(@Validated(UserRequestDTO.deleteGroup.class) @RequestBody UserRequestDTO dto) throws AccessDeniedException {
+
+        userService.deleteUser(dto);
+        return ResponseEntity.status(201).body(true);
     }
 
 }

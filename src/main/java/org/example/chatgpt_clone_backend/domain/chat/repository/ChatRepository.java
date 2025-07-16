@@ -13,4 +13,7 @@ public interface ChatRepository extends JpaRepository<ChatEntity, Long> {
     @Transactional
     void deleteByPageId(Long pageId);
 
+    @Transactional
+    void deleteByPageIdIn(List<Long> pageIds);
+
 }

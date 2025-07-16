@@ -1,5 +1,8 @@
 package org.example.chatgpt_clone_backend.domain.user.service;
 
+import org.example.chatgpt_clone_backend.domain.chat.dto.PageResponseDTO;
+import org.example.chatgpt_clone_backend.domain.chat.service.ChatService;
+import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
 import org.example.chatgpt_clone_backend.domain.user.dto.CustomOAuth2User;
 import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.example.chatgpt_clone_backend.domain.user.dto.UserResponseDTO;
@@ -32,11 +35,15 @@ import java.util.Optional;
 public class UserService extends DefaultOAuth2UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final ChatService chatService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, ChatService chatService) {
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
+        this.chatService = chatService;
     }
 
     // 자체 로그인 회원 가입 존재 여부
@@ -118,7 +125,14 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
             throw new AccessDeniedException("본인 혹은 관리자만 삭제할 수 있습니다.");
         }
 
+        // 유저 제거
         userRepository.deleteByUsername(dto.getUsername());
+
+        // Refresh 토큰 제거
+        jwtService.removeRefreshUser(sessionUsername);
+
+        // 채팅 & 페이지 제거
+        chatService.deletePageUser(sessionUsername);
     }
 
     // 소셜 로그인 유저 정보 받기 (매 로그인시 : 신규 = 가입, 기존 = 업데이트)

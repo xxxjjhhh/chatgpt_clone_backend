@@ -135,4 +135,9 @@ public class JwtService {
         refreshRepository.deleteByRefresh(refreshToken);
     }
 
+    // 특정 유저 Refresh 토큰 모두 삭제 (탈퇴)
+    public void removeRefreshUser(String username) {
+        refreshRepository.deleteByUsername(username);
+    }
+
 }

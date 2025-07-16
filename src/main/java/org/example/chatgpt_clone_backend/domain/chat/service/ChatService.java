@@ -179,6 +179,24 @@ public class ChatService {
         return true;
     }
 
+    // 유저별 채팅 페이지 제거 (삭제시)
+    @Transactional
+    public void deletePageUser(String username) {
+
+        // 검증은 불러 쓰는 곳에서
+
+        // 유저별 채팅 페이지 목록 조회
+        List<Long> pageIds = pageRepository.findByUsernameOrderByUpdatedDateDesc(username).stream()
+                .map(PageEntity::getId)
+                .toList();
+
+        // 채팅 페이지 전체 삭제
+        pageRepository.deleteByUsername(username);
+
+        // 페이지별 채팅 목록 전체 삭제
+        chatRepository.deleteByPageIdIn(pageIds);
+    }
+
     // 유저별 채팅 페이지 목록
     @Transactional(readOnly = true)
     public List<PageResponseDTO> readAllPages() {

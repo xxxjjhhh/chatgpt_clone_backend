@@ -13,6 +13,10 @@ public interface RefreshRepository extends JpaRepository<RefreshEntity, Long> {
     @Transactional
     void deleteByRefresh(String refresh);
 
+    // 특정 유저 Refresh 토큰 삭제
+    @Transactional
+    void deleteByUsername(String username);
+
     // 특정일 지난 refresh 토큰 삭제
     @Transactional
     void deleteByCreatedDateBefore(LocalDateTime createdDate);
