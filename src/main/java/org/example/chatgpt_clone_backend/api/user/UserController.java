@@ -41,6 +41,12 @@ public class UserController {
         return userService.readUser();
     }
 
+    // 유저 수정 (자체 로그인 유저만)
+    @PutMapping("/user")
+    public ResponseEntity<Long> updateUserApi(@Validated(UserRequestDTO.updateGroup.class) @RequestBody UserRequestDTO dto) throws AccessDeniedException {
+        return ResponseEntity.status(200).body(userService.updateUser(dto));
+    }
+
     // 유저 제거 (자체/소셜)
     @DeleteMapping("/user")
     public ResponseEntity<Boolean> deleteUserApi(@Validated(UserRequestDTO.deleteGroup.class) @RequestBody UserRequestDTO dto) throws AccessDeniedException {
