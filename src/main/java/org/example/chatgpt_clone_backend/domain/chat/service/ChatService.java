@@ -6,6 +6,7 @@ import org.example.chatgpt_clone_backend.domain.chat.entity.ChatEntity;
 import org.example.chatgpt_clone_backend.domain.chat.entity.PageEntity;
 import org.example.chatgpt_clone_backend.domain.chat.repository.ChatRepository;
 import org.example.chatgpt_clone_backend.domain.chat.repository.PageRepository;
+import org.example.chatgpt_clone_backend.domain.chat.tools.ChatTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
@@ -24,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +37,14 @@ public class ChatService {
     private final PageRepository pageRepository;
     private final ChatMemoryRepository chatMemoryRepository;
     private final ChatClient openAiChatClient;
+    private final ChatTools chatTools;
 
-    public ChatService(ChatRepository chatRepository, PageRepository pageRepository, ChatMemoryRepository chatMemoryRepository, @Qualifier("openAiChatClient") ChatClient openAiChatClient) {
+    public ChatService(ChatRepository chatRepository, PageRepository pageRepository, ChatMemoryRepository chatMemoryRepository, @Qualifier("openAiChatClient") ChatClient openAiChatClient, ChatTools chatTools) {
         this.chatRepository = chatRepository;
         this.pageRepository = pageRepository;
         this.chatMemoryRepository = chatMemoryRepository;
         this.openAiChatClient = openAiChatClient;
+        this.chatTools = chatTools;
     }
 
     // 신규 채팅 시작 (첫 텍스트 받은 후 제목도 생성)
@@ -124,6 +128,7 @@ public class ChatService {
 
         // 요청 및 응답
         return openAiChatClient.prompt(prompt)
+                .tools(chatTools)
                 .stream()
                 .content()
                 .map(token -> {
@@ -148,10 +153,8 @@ public class ChatService {
                         chatRepository.saveAll(List.of(chatUserEntity, chatAssistantEntity));
 
                         // 채팅 변경시 페이지 업데이트 시간 변경
-                        pageRepository.findById(Long.valueOf(pageId)).ifPresent(page -> {
-                            page.updateTime();
-                            pageRepository.save(page);
-                        });
+                        pageRepository.updateUpdateDateById(Long.valueOf(pageId), LocalDateTime.now());
+
                     }).subscribeOn(Schedulers.boundedElastic()).subscribe();
                 });
     }

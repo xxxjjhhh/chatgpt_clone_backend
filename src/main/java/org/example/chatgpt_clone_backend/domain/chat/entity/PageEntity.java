@@ -33,9 +33,4 @@ public class PageEntity {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
-    // 시간 업데이트를 위한 메소드
-    public void updateTime() {
-        this.updatedDate = LocalDateTime.now();
-    }
-
 }
