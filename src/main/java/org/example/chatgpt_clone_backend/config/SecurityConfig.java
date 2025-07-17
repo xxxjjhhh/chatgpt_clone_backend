@@ -131,6 +131,7 @@ public class SecurityConfig {
                         .requestMatchers("/jwt/exchange", "/jwt/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST, "/user/exist", "/user").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user").hasRole(UserRoleType.USER.name())
+                        .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name())
                         .anyRequest().authenticated()
                 );
