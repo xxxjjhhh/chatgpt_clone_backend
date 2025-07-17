@@ -212,7 +212,7 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         UserEntity entity = userRepository.findByUsernameAndIsLock(username, false)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 유저를 찾을 수 없습니다: " + username));
 
-        return new UserResponseDTO(username, entity.getNickname(), entity.getEmail());
+        return new UserResponseDTO(username, entity.getSocial(), entity.getNickname(), entity.getEmail());
     }
 
 }
