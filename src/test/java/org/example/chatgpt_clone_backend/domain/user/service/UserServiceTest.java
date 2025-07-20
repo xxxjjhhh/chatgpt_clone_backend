@@ -1,23 +1,35 @@
 package org.example.chatgpt_clone_backend.domain.user.service;
 
 import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
+import org.example.chatgpt_clone_backend.domain.user.dto.UserResponseDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.nio.file.AccessDeniedException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -174,13 +186,124 @@ class UserServiceTest {
     @DisplayName("user 도메인 : UserService : deleteUser : 테스트 1")
     void deleteUserTest1() {
 
-        // 테스트 :
+        // 테스트 : 본인 계정 아닌 경우
 
         // given
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("xxxjjhhh");
+        Mockito.when(auth.getAuthorities()).thenAnswer(invocation -> Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
 
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("admin");
 
         // when & then
+        assertThrows(AccessDeniedException.class, () -> userService.deleteUser(dto));
 
+    }
+
+    @Test
+    @DisplayName("user 도메인 : UserService : loadUser : 테스트 1")
+    void loadUserTest1() {
+
+        // 테스트 : 네이버 신규 로그인 가정
+
+        // given
+        ClientRegistration registration = ClientRegistration.withRegistrationId("naver")
+                .clientId("clientId")
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("http://localhost:8080/login/oauth2/code/naver")
+                .tokenUri("https://nid.naver.com/oauth2.0/token")
+                .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
+                .userInfoUri("https://openapi.naver.com/v1/nid/me")
+                .userNameAttributeName("response")
+                .clientName("naver")
+                .build();
+        OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, new OAuth2AccessToken(
+                OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(), Instant.now().plusSeconds(60)));
+
+        Map<String, Object> naverResponse = new HashMap<>();
+        naverResponse.put("id", "12345");
+        naverResponse.put("email", "naver@test.com");
+        naverResponse.put("nickname", "김지훈");
+
+        Map<String, Object> naverAttributes = new HashMap<>();
+        naverAttributes.put("response", naverResponse);
+
+        OAuth2User mockOAuth2User = Mockito.mock(OAuth2User.class);
+        Mockito.when(mockOAuth2User.getAttributes()).thenReturn(naverAttributes);
+
+        Mockito.when(userRepository.findByUsernameAndSocial("NAVER_12345", true))
+                .thenReturn(Optional.empty());
+
+        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
+        Mockito.when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> invocation.getArgument(0));
+
+
+        // when
+
+
+        // then
+
+    }
+
+    @Test
+    @DisplayName("user 도메인 : UserService : readUser : 테스트 1")
+    void readUserTest1() {
+
+        // 테스트 : 유저 없는 경우 UsernameNotFoundException 예외 체크
+
+        // given
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("xxxjjhhh");
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        given(userRepository.findByUsernameAndIsLock("xxxjjhhh", false))
+                .willReturn(Optional.empty());
+
+        // when & then
+        assertThrows(UsernameNotFoundException.class, () -> userService.readUser());
+
+    }
+
+    @Test
+    @DisplayName("user 도메인 : UserService : readUser : 테스트 2")
+    void readUserTest2() {
+
+        // 테스트 : 존재하는 경우 정보 확인
+
+        // given
+        Authentication auth = Mockito.mock(Authentication.class);
+        Mockito.when(auth.getName()).thenReturn("xxxjjhhh");
+        SecurityContext securityContext = Mockito.mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
+
+        UserEntity mockUser = UserEntity.builder()
+                .id(1L)
+                .username("xxxjjhhh")
+                .nickname("xxxjjhhh")
+                .isLock(false)
+                .social(false)
+                .roleType(UserRoleType.USER)
+                .email("xxxjjhhh@naver.com")
+                .build();
+
+        given(userRepository.findByUsernameAndIsLock("xxxjjhhh", false))
+                .willReturn(Optional.ofNullable(mockUser));
+
+        // when
+        UserResponseDTO response = userService.readUser();
+
+        // then
+        assertNotNull(response);
+        assertEquals("xxxjjhhh", response.username());
+        assertEquals("xxxjjhhh", response.nickname());
+        assertEquals("xxxjjhhh@naver.com", response.email());
 
     }
 
