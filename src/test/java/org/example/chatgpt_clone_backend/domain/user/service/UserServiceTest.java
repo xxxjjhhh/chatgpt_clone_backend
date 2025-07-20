@@ -211,35 +211,6 @@ class UserServiceTest {
         // 테스트 : 네이버 신규 로그인 가정
 
         // given
-        ClientRegistration registration = ClientRegistration.withRegistrationId("naver")
-                .clientId("clientId")
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://localhost:8080/login/oauth2/code/naver")
-                .tokenUri("https://nid.naver.com/oauth2.0/token")
-                .authorizationUri("https://nid.naver.com/oauth2.0/authorize")
-                .userInfoUri("https://openapi.naver.com/v1/nid/me")
-                .userNameAttributeName("response")
-                .clientName("naver")
-                .build();
-        OAuth2UserRequest userRequest = new OAuth2UserRequest(registration, new OAuth2AccessToken(
-                OAuth2AccessToken.TokenType.BEARER, "token", Instant.now(), Instant.now().plusSeconds(60)));
-
-        Map<String, Object> naverResponse = new HashMap<>();
-        naverResponse.put("id", "12345");
-        naverResponse.put("email", "naver@test.com");
-        naverResponse.put("nickname", "김지훈");
-
-        Map<String, Object> naverAttributes = new HashMap<>();
-        naverAttributes.put("response", naverResponse);
-
-        OAuth2User mockOAuth2User = Mockito.mock(OAuth2User.class);
-        Mockito.when(mockOAuth2User.getAttributes()).thenReturn(naverAttributes);
-
-        Mockito.when(userRepository.findByUsernameAndSocial("NAVER_12345", true))
-                .thenReturn(Optional.empty());
-
-        ArgumentCaptor<UserEntity> userCaptor = ArgumentCaptor.forClass(UserEntity.class);
-        Mockito.when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> invocation.getArgument(0));
 
 
         // when
