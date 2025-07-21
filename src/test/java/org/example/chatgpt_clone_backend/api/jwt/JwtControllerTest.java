@@ -43,7 +43,8 @@ class JwtControllerTest {
 
         // when & then
         mockMvc.perform(post("/jwt/exchange")
-                        .cookie(refreshTokenCookie))
+                        .cookie(refreshTokenCookie)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
                 .andExpect(jsonPath("$.refreshToken").exists());
@@ -59,7 +60,8 @@ class JwtControllerTest {
         // given
 
         // when & then
-        mockMvc.perform(post("/jwt/exchange"))
+        mockMvc.perform(post("/jwt/exchange")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
     }

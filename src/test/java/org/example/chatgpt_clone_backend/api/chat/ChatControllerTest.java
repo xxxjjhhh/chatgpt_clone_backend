@@ -222,7 +222,8 @@ class ChatControllerTest {
         Long chatId2 = chatRepository.save(chatEntity2).getId();
 
         // when & then
-        mockMvc.perform(delete("/chat/" + pageId))
+        mockMvc.perform(delete("/chat/" + pageId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
         Optional<PageEntity> deletedPage = pageRepository.findById(pageId);
@@ -245,7 +246,8 @@ class ChatControllerTest {
         // given
 
         // when & then
-        mockMvc.perform(delete("/chat/3"))
+        mockMvc.perform(delete("/chat/3")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
 
     }
@@ -282,7 +284,8 @@ class ChatControllerTest {
         chatRepository.save(chatEntity2);
 
         // when & then
-        mockMvc.perform(get("/chat/" + pageId))
+        mockMvc.perform(get("/chat/" + pageId)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
 

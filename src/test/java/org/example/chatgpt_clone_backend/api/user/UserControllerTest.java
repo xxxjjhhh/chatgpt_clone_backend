@@ -1,12 +1,17 @@
 package org.example.chatgpt_clone_backend.api.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.chatgpt_clone_backend.domain.chat.entity.ChatEntity;
+import org.example.chatgpt_clone_backend.domain.chat.entity.PageEntity;
+import org.example.chatgpt_clone_backend.domain.chat.repository.ChatRepository;
+import org.example.chatgpt_clone_backend.domain.chat.repository.PageRepository;
 import org.example.chatgpt_clone_backend.domain.user.dto.UserRequestDTO;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserEntity;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.chat.messages.MessageType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +38,12 @@ class UserControllerTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    PageRepository pageRepository;
+
+    @Autowired
+    ChatRepository chatRepository;
 
     @Test
     @DisplayName("user API : UserController : existUserApi : 통합 테스트 1")
@@ -368,6 +379,56 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         assertFalse(userRepository.existsByUsername("user1"));
+
+    }
+
+    @Test
+    @DisplayName("user API : UserController : deleteUserApi : 통합 테스트 4")
+    @WithMockUser(username = "xxxjjhhh", roles = {"ADMIN"})
+    void deleteUserApiTest4() throws Exception {
+
+        // 테스트 : 로그인 (ADMIN) 상태로 타인 계정 제거 및 Chat 페이지 제거 확인
+
+        // given
+        UserEntity userEntity = UserEntity.builder()
+                .username("user1")
+                .password("")
+                .roleType(UserRoleType.ADMIN)
+                .isLock(false)
+                .social(false)
+                .email("xxxjjhhh@gmail.com")
+                .nickname("유저1")
+                .build();
+
+        userRepository.save(userEntity);
+
+        PageEntity pageEntity = PageEntity.builder()
+                .username("user1")
+                .title("the weeknd 노래")
+                .build();
+
+        Long pageId = pageRepository.save(pageEntity).getId();
+
+        ChatEntity chatEntity = ChatEntity.builder()
+                .content("the weeknd의 save your tears 노래가 좋아. 더 추천해줘")
+                .pageId(pageId)
+                .messageType(MessageType.USER)
+                .build();
+
+        Long chatId = chatRepository.save(chatEntity).getId();
+
+        UserRequestDTO dto = new UserRequestDTO();
+        dto.setUsername("user1");
+
+        // when & then
+        mockMvc.perform(delete("/user")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(dto)))
+                .andExpect(status().isOk());
+
+        assertFalse(userRepository.existsByUsername("user1"));
+        assertFalse(pageRepository.existsById(pageId));
+        assertFalse(chatRepository.existsById(chatId));
 
     }
 
