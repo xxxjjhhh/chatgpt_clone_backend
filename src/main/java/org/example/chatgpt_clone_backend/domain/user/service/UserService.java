@@ -128,10 +128,10 @@ public class UserService extends DefaultOAuth2UserService implements UserDetails
         userRepository.deleteByUsername(dto.getUsername());
 
         // Refresh 토큰 제거
-        jwtService.removeRefreshUser(sessionUsername);
+        jwtService.removeRefreshUser(dto.getUsername());
 
         // 채팅 & 페이지 제거
-        chatService.deletePageUser(sessionUsername);
+        chatService.deletePageUser(dto.getUsername());
     }
 
     // 소셜 로그인 유저 정보 받기 (매 로그인시 : 신규 = 가입, 기존 = 업데이트)
