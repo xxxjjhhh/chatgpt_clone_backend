@@ -1,6 +1,7 @@
 package org.example.chatgpt_clone_backend.config;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.http.HttpServletResponse;
 import org.example.chatgpt_clone_backend.domain.jwt.service.JwtService;
 import org.example.chatgpt_clone_backend.domain.user.entity.UserRoleType;
 import org.example.chatgpt_clone_backend.filter.JWTFilter;
@@ -134,6 +135,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/user").hasRole(UserRoleType.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/user").hasRole(UserRoleType.USER.name())
                         .anyRequest().authenticated()
+                );
+
+        // 예외 처리
+        http
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED); // 401 응답
+                        })
+                        .accessDeniedHandler((request, response, authException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN); // 403 응답
+                        })
                 );
 
         // 커스텀 필터 추가
