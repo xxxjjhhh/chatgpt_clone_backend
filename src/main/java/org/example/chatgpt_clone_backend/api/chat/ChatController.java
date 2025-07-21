@@ -4,6 +4,7 @@ import org.example.chatgpt_clone_backend.domain.chat.dto.ChatRequestDTO;
 import org.example.chatgpt_clone_backend.domain.chat.dto.ChatResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.dto.PageResponseDTO;
 import org.example.chatgpt_clone_backend.domain.chat.service.ChatService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -22,28 +23,37 @@ public class ChatController {
     }
 
     // 유저별 페이지 목록
-    @GetMapping("/chat")
-    public List<PageResponseDTO> readAllPageApi() {
+    @GetMapping(value = "/chat", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<PageResponseDTO> readAllPageApi(
+
+    ) {
         return chatService.readAllPages();
     }
 
     // 신규 채팅 시작
-    @PostMapping("/chat")
-    public ResponseEntity<Map<String, Long>> createChatApi(@RequestBody ChatRequestDTO dto) {
+    @PostMapping(value = "/chat", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Map<String, Long>> createChatApi(
+            @RequestBody ChatRequestDTO dto
+    ) {
         Long pageId = chatService.createPage(dto.getText());
         Map<String, Long> responseBody = Collections.singletonMap("pageId", pageId);
         return ResponseEntity.status(201).body(responseBody);
     }
 
     // 채팅 메시지 응답
-    @PostMapping("/chat/{pageId}")
-    public Flux<String> streamChatApi(@PathVariable("pageId") String pageId, @RequestBody ChatRequestDTO dto) {
+    @PostMapping(value = "/chat/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Flux<String> streamChatApi(
+            @PathVariable("pageId") String pageId,
+            @RequestBody ChatRequestDTO dto
+    ) {
         return chatService.generateTextStream(dto.getText(), pageId);
     }
 
     // 채팅 페이지 삭제
-    @DeleteMapping("/chat/{pageId}")
-    public ResponseEntity<?> deletePageApi(@PathVariable("pageId") String pageId) {
+    @DeleteMapping(value = "/chat/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deletePageApi(
+            @PathVariable("pageId") String pageId
+    ) {
         Boolean isDelete = chatService.deletePageChat(Long.valueOf(pageId));
 
         if (isDelete) {
@@ -54,8 +64,10 @@ public class ChatController {
     }
 
     // 채팅 페이지 대화 목록 가져오기
-    @GetMapping("/chat/{pageId}")
-    public List<ChatResponseDTO> pageHistoryApi(@PathVariable("pageId") Long pageId) {
+    @GetMapping(value = "/chat/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public List<ChatResponseDTO> pageHistoryApi(
+            @PathVariable("pageId") Long pageId
+    ) {
         return chatService.readAllChatsPageId(pageId);
     }
 
